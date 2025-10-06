@@ -24,10 +24,17 @@ add_library(SynthQ
         src/one_qubit_gate.cpp
         include/one_qubit_gate.h
         src/unitary.cpp
-        include/unitary.h)
+        include/unitary.h
+        src/ctrl_qubit_gate.cpp
+        include/ctrl_qubit_gate.h
+        src/ucrzNode.cpp
+        include/ucrzNode.h
+        src/nodeVisitor.cpp
+        include/nodeVisitor.h)
 
 add_executable(Test
-        test/test_one_qubit.cpp)
+        test/test_one_qubit.cpp
+        test/test_mcgates.cpp)
 
 target_link_libraries(
         Test
