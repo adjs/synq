@@ -27,9 +27,6 @@ private:
     std::string mName;
 };
 
-
-
-
 class uGate:public IASTnode {
 
 };
@@ -45,13 +42,9 @@ private:
 
 };
 
-class cx_gate:IASTnode {
-
-};
-
-
 /*
- * ucrz --> rz1 cx rz2 cx
+ * ucrz --> ucrz cx ucrz cx
+ * ucrz --> rz cx ucrz rz
   * @ param angles vector with two double representing angles of uniformly controlled rz gate
  */
 class ucrzNode:public IASTnode {
@@ -67,6 +60,10 @@ public:
     std::unique_ptr<IASTnode> gate2;
 };
 
+/*
+ * first_ucrz --> ucrz cx ucrz cx
+ *              | rz cx rz cx
+ */
 class firstUcrzNode:public ucrzNode {
 public:
     explicit firstUcrzNode(const std::vector<double>* angles);
