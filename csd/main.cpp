@@ -4,7 +4,7 @@
 #include<Eigen/Dense>
 // https://www.netlib.org/lapack/explore-html-3.6.1/df/d14/lapacke__cuncsd_8c_a0d8bba2ce527b3bd6c82a3f6bd31320b.html
 
-int csd(Eigen::MatrixXcf& unitary, int x11_rows, int x11_cols);
+int csd(Eigen::MatrixXcf& unitary, int p, int q);
 lapack_complex_float* eigen2lapack(Eigen::MatrixXcf& unitary, int start_line, int start_col, int n_rows, int n_cols);
 int main() {
 
@@ -89,23 +89,41 @@ std::cout << U1[0];
     return 0;
 }
 
-int csd(Eigen::MatrixXcf& unitary, int x11_rows, int x11_cols) {
-    int n_rows = unitary.rows();
-    int n_cols = unitary.cols();
+int csd(Eigen::MatrixXcf& unitary, int p, int q) {
+    int m = unitary.rows();
+    int n = unitary.cols();
 
+    lapack_complex_float* X11 = eigen2lapack(unitary, 0, 0, p, q);
+    lapack_complex_float* X12 = eigen2lapack(unitary, 0, q, p, n-p);
+    lapack_complex_float* X21 = eigen2lapack(unitary, p, 0,m-p, q);
+    lapack_complex_float* X22 = eigen2lapack(unitary, p, q, m-p, n-p);
 
-    lapack_complex_float U1[x11_rows * x11_cols];
+    float theta[std::min(q, q)];
 
-    for (int j = 0; j < x11_cols; ++j)
-        for (int i = 0; i < x11_rows; ++i) {
-            float a = unitary(0, 0).real();
-            float b = unitary(0, 0).imag();
-            U1[x11_rows*j +i] = lapack_make_complex_float(unitary(i, j).real(), unitary(i, j).imag());
-        }
-
-    lapack_complex_float* U2 = eigen2lapack(unitary, 1, 1, 2, 2);
-    std::cout << creal(U2[0]);
-    delete U2;
+    lapack_complex_float V1T[q*q], V2T[(m-q)*(m-q)], U1[p*p], U2[(m-p)*(m-p)];
+    int info = 0;
+    int ldx11 = 0;
+    info = LAPACKE_cuncsd(
+        LAPACK_COL_MAJOR, // matrix_layout
+        'Y', // JOBU1
+        'Y', // JOBU2
+        'Y', // JOBV1T
+        'Y', // JOBV2T
+        'T', // TRANS
+        'O', // SIGNS
+        m, q, p, // M, P, Q
+        X11, ldx11, // X11, ldx11
+        X12, ldx11, // x12, ldx12
+        X21, ldx11, // x21, ldx21
+        X22, ldx11, // x11, ldx11
+        theta,
+        U1, ldx11,
+        U2, ldx11,
+        V1T, ldx11,
+        V2T, ldx11 // x22, ldx22
+    );
+    std::cout << info << "real";
+    delete X11;
     return 0;
 }
 
