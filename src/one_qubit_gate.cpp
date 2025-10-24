@@ -2,6 +2,10 @@
 // Created by adenilton on 10/3/25.
 //
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include "../include/one_qubit_gate.h"
 #include <complex>
 
