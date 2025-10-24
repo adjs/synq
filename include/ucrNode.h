@@ -4,29 +4,9 @@
 
 #pragma once
 #include <memory>
-#include <vector>
-#include <string>
-#include <variant>
+#include "IASTnode.h"
 
-class nodeVisitor;
-
-using return_type = std::variant<double, std::vector<double> >;
-
-class IASTnode
-{
-public:
-    inline static int index = 0;
-    int name;
-    int num_qubits = 0;
-    bool reverse_gate = false;
-    virtual ~IASTnode() = default;
-    virtual void accept(nodeVisitor &visitor) = 0;
-    virtual return_type get_data() = 0;
-    virtual int get_num_qubits();
-private:
-    std::string mName;
-};
-
+enum ucrType {Z, Y};
 class uGate:public IASTnode {
 
 };
@@ -42,17 +22,28 @@ private:
 
 };
 
+class ryNode final :public IASTnode {
+public:
+    explicit ryNode(double theta);
+    ryNode();
+    void accept(nodeVisitor &visitor) override;
+    return_type get_data() override;
+private:
+    double angle;
+
+};
+
 /*
  * ucrz --> ucrz cx ucrz cx
  * ucrz --> rz cx ucrz rz
   * @ param angles vector with two double representing angles of uniformly controlled rz gate
  */
-class ucrzNode:public IASTnode {
+class ucrNode:public IASTnode {
 public:
     bool first=false;
 
     int name;
-    explicit ucrzNode(const std::vector<double>* angles, bool _first, bool _reverse);
+    explicit ucrNode(const std::vector<double>* angles, ucrType type, bool _first, bool _reverse);
     void accept(nodeVisitor &visitor) override;
     return_type get_data() override;
     std::vector<double> angles;
@@ -64,8 +55,8 @@ public:
  * first_ucrz --> ucrz cx ucrz cx
  *              | rz cx rz cx
  */
-class firstUcrzNode:public ucrzNode {
+class firstUcrNode:public ucrNode {
 public:
-    explicit firstUcrzNode(const std::vector<double>* angles);
+    explicit firstUcrNode(const std::vector<double>* angles, ucrType type);
     void accept(nodeVisitor &visitor) override;
 };

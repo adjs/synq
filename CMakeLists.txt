@@ -31,14 +31,25 @@ add_library(SynthQ
         include/unitary.h
         src/ctrl_qubit_gate.cpp
         include/ctrl_qubit_gate.h
-        src/ucrzNode.cpp
-        include/ucrzNode.h
+        src/ucrNode.cpp
+        include/ucrNode.h
         src/nodeVisitor.cpp
-        include/nodeVisitor.h)
+        include/nodeVisitor.h
+        src/qsdNode.cpp
+        include/qsdNode.h
+        csd/csd.cpp
+        csd/csd.h
+        src/csdNode.cpp
+        include/csdNode.h
+        src/IASTnode.cpp
+        include/IASTnode.h)
+
+target_link_libraries(SynthQ -llapacke)
 
 add_executable(Test
         test/test_one_qubit.cpp
-        test/test_mcgates.cpp)
+        test/test_mcgates.cpp
+        test/test_qsd.cpp)
 
 target_link_libraries(
         Test
