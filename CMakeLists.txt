@@ -33,6 +33,10 @@ add_library(SynthQ
         include/ctrl_qubit_gate.h
         src/ucrzNode.cpp
         include/ucrzNode.h
+        src/ucryNode.cpp
+        include/ucryNode.h
+        src/ucRotationNode.cpp
+        include/ucRotationNode.h
         src/nodeVisitor.cpp
         include/nodeVisitor.h)
 

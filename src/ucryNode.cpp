@@ -1,0 +1,48 @@
+//
+// Created by alex.
+//
+
+#include "../include/ucryNode.h"
+
+#include <algorithm>
+#include<cmath>
+#include <iostream>
+#include <ostream>
+#include "../include/nodeVisitor.h"
+
+ucryNode::ucryNode(const std::vector<double>* angles, const bool _first = false, const bool _reverse=false) : UCRotationNode(angles, _first, _reverse) {
+    init();
+}
+
+std::unique_ptr<IASTnode> ucryNode::createBaseRotation(double angle) {
+    return std::make_unique<ryNode>(angle);
+}
+
+std::unique_ptr<UCRotationNode> ucryNode::createSubNode(const std::vector<double>* subAngles) {
+    return std::make_unique<ucryNode>(subAngles, false, false);
+}
+
+firstUcryNode::firstUcryNode(const std::vector<double>* angles) : ucryNode(angles, true){
+}
+
+void firstUcryNode::accept(nodeVisitor &visitor) {
+    visitor.visit(*this);
+}
+
+ryNode::ryNode(const double theta) {
+    num_qubits = 1;
+    angle = theta;
+}
+
+ryNode::ryNode() {
+    num_qubits = 1;
+    angle = 0.0;
+}
+
+void ryNode::accept(nodeVisitor &visitor) {
+    visitor.visit(*this);
+}
+
+return_type ryNode::get_data() {
+    return angle;
+}

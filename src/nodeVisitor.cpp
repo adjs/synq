@@ -53,3 +53,40 @@ void qasmVisitor::visit(ucrzNode &node) {
     node.gate2->accept(*this);
     // qasm_code += ctrl_not; // TODO: Remover este cnot
 }
+
+void qasmVisitor::visit(ryNode &node)
+{
+    int target = _num_qubits - 1;
+    qasm_code += "ry(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
+}
+
+void qasmVisitor::visit(firstUcryNode &node) {
+    int target = _num_qubits - 1;
+    int control = target - node.get_num_qubits() + 1;
+
+    std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
+    node.gate1->accept(*this);
+    qasm_code += ctrl_not;
+    node.gate2->accept(*this);
+    qasm_code += ctrl_not;
+}
+
+void qasmVisitor::visit(ucryNode &node) {
+    int target = _num_qubits - 1;
+    int control = target - node.get_num_qubits() + 1;
+
+    std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
+    if (node.reverse_gate) {
+        node.gate1->reverse_gate = !node.gate1->reverse_gate;
+        node.gate2->reverse_gate = !node.gate2->reverse_gate;
+        std::swap(node.gate1, node.gate2);
+    }
+    node.gate1->accept(*this);
+    qasm_code += ctrl_not;
+    node.gate2->accept(*this);
+}
+
+void qasmVisitor::visit(UCRotationNode &node) {
+    // Como é abstrata, talvez delegar para subclasses, mas para compatibilidade, podemos deixar vazio ou lançar erro
+    // Por enquanto, vazio
+}

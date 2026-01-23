@@ -5,6 +5,8 @@
 #pragma once
 
 #include "ucrzNode.h"
+#include "ucryNode.h"
+#include "ucRotationNode.h"
 
 
 class nodeVisitor {
@@ -13,6 +15,10 @@ public:
     virtual void visit(rzNode &node) = 0;
     virtual void visit(ucrzNode &node) = 0;
     virtual void visit(firstUcrzNode &node) = 0;
+    virtual void visit(ryNode &node) = 0;
+    virtual void visit(ucryNode &node) = 0;
+    virtual void visit(firstUcryNode &node) = 0;
+    virtual void visit(UCRotationNode &node) = 0;
 };
 
 struct return_type_visitor {
@@ -32,4 +38,8 @@ public:
     void visit(rzNode &node) override;
     void visit(firstUcrzNode &node) override;
     void visit(ucrzNode &node) override;
+    void visit(ryNode &node) override;
+    void visit(firstUcryNode &node) override;
+    void visit(ucryNode &node) override;
+    void visit(UCRotationNode &node) override;
 };
