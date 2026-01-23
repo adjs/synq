@@ -87,6 +87,5 @@ void qasmVisitor::visit(ucryNode &node) {
 }
 
 void qasmVisitor::visit(UCRotationNode &node) {
-    // Como é abstrata, talvez delegar para subclasses, mas para compatibilidade, podemos deixar vazio ou lançar erro
-    // Por enquanto, vazio
 }
+

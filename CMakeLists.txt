@@ -35,8 +35,8 @@ add_library(SynthQ
         include/ucrzNode.h
         src/ucryNode.cpp
         include/ucryNode.h
-        src/ucRotationNode.cpp
-        include/ucRotationNode.h
+        src/iast.cpp
+        include/iast.h
         src/nodeVisitor.cpp
         include/nodeVisitor.h)
 
