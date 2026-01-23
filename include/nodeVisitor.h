@@ -36,6 +36,7 @@ class qasmVisitor : public nodeVisitor {
 public:
     std::string qasm_code;
     int _num_qubits;
+    int active_target = -1;
     explicit qasmVisitor(int num_qubits);
     void visit(rzNode &node) override;
     void visit(firstUcrzNode &node) override;

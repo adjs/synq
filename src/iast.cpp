@@ -10,12 +10,13 @@
 #include <ostream>
 #include "../include/nodeVisitor.h"
 
-UCRotationNode::UCRotationNode(const std::vector<double>* angles, const bool _first = false, const bool _reverse=false){
+UCRotationNode::UCRotationNode(const std::vector<double>* angles, const bool _first, const bool _reverse, const bool _inverse) {
     num_qubits = static_cast<int>(log2(static_cast<double>(angles->size()))) + 1;
     name = index++;
     this->angles = *angles;
     first = _first;
     reverse_gate = _reverse;
+    inverse = _inverse;
 }
 
 void UCRotationNode::init() {

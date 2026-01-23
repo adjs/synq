@@ -34,12 +34,13 @@ class uGate:public IASTnode {
 class UCRotationNode : public IASTnode {
 public:
     bool first = false;
+    bool inverse = false;
     int name;
     std::vector<double> angles;
     std::unique_ptr<IASTnode> gate1;
     std::unique_ptr<IASTnode> gate2;
 
-    explicit UCRotationNode(const std::vector<double>* angles, bool _first, bool _reverse);
+    explicit UCRotationNode(const std::vector<double>* angles, bool _first, bool _reverse, bool _inverse);
 
     void accept(nodeVisitor &visitor) override;
     return_type get_data() override;

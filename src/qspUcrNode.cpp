@@ -30,7 +30,6 @@ void qspUcrNode::init(){
         this->base_ry = createBaseQsp(2 * std::asin(this->state[1] / std::sqrt((std::pow(this->state[0],2) + std::pow(this->state[1],2)))));
     }
 
-
 }
 
 void qspUcrNode::accept(nodeVisitor &visitor) {
@@ -50,6 +49,6 @@ std::unique_ptr<qspUcrNode> qspUcrNode::createSubQsp(const std::vector<double>* 
 }
 
 std::unique_ptr<ucryNode> qspUcrNode::createUcry(const std::vector<double>* angles_ry) {
-    return std::make_unique<ucryNode>(angles_ry, false, false);
+    return std::make_unique<ucryNode>(angles_ry, false, false, true);
 }
 

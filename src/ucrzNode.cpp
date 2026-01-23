@@ -10,7 +10,7 @@
 #include <ostream>
 #include "../include/nodeVisitor.h"
 
-ucrzNode::ucrzNode(const std::vector<double>* angles, const bool _first = false, const bool _reverse=false) : UCRotationNode(angles, _first, _reverse) {
+ucrzNode::ucrzNode(const std::vector<double>* angles, const bool _first = false, const bool _reverse=false, const bool _inverse=false) : UCRotationNode(angles, _first, _reverse, _inverse) {
     init();
 }
 
