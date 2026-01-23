@@ -16,7 +16,6 @@ UCRotationNode::UCRotationNode(const std::vector<double>* angles, const bool _fi
     this->angles = *angles;
     first = _first;
     reverse_gate = _reverse;
-    // Recursão movida para init()
 }
 
 void UCRotationNode::init() {

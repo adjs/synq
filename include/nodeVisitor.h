@@ -7,6 +7,7 @@
 #include "ucrzNode.h"
 #include "ucryNode.h"
 #include "iast.h"
+#include "qspUcrNode.h"
 
 
 class nodeVisitor {
@@ -19,6 +20,7 @@ public:
     virtual void visit(ucryNode &node) = 0;
     virtual void visit(firstUcryNode &node) = 0;
     virtual void visit(UCRotationNode &node) = 0;
+    virtual void visit(qspUcrNode &node) = 0;
 };
 
 struct return_type_visitor {
@@ -42,4 +44,5 @@ public:
     void visit(firstUcryNode &node) override;
     void visit(ucryNode &node) override;
     void visit(UCRotationNode &node) override;
+    void visit(qspUcrNode &node) override;
 };

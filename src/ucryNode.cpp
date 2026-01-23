@@ -22,6 +22,11 @@ std::unique_ptr<UCRotationNode> ucryNode::createSubNode(const std::vector<double
     return std::make_unique<ucryNode>(subAngles, false, false);
 }
 
+void ucryNode::accept(nodeVisitor &visitor) {
+    visitor.visit(*this);
+}
+
+
 firstUcryNode::firstUcryNode(const std::vector<double>* angles) : ucryNode(angles, true){
 }
 

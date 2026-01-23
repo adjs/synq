@@ -89,3 +89,15 @@ void qasmVisitor::visit(ucryNode &node) {
 void qasmVisitor::visit(UCRotationNode &node) {
 }
 
+void qasmVisitor::visit(qspUcrNode &node) {
+    if (node.base_ry) {
+        node.base_ry->accept(*this);
+    }
+    if (node.next_qsp) {
+        node.next_qsp->accept(*this);
+    }
+    if (node.ucry) {
+        node.ucry->accept(*this);
+    }
+}
+
