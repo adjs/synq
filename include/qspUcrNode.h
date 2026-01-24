@@ -20,6 +20,7 @@ class qspUcrNode final: public IASTnode {
 public:
     bool first = false;
     int name;
+    double global_phase = 0.0;
    
     std::unique_ptr<IASTnode> next_qsp;
     std::unique_ptr<ucryNode> ucry;

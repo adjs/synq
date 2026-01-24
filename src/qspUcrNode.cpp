@@ -41,7 +41,10 @@ void qspUcrNode::init(){
         ucry = createUcry(&angles_ry);
         ucrz = createUcrz(&angles_rz);  
     }
-    else{
+    else {
+
+        this->global_phase = (std::arg(this->state[0]) + std::arg(this->state[1])) / 2.0;
+
         double base_norm = std::sqrt((std::pow(std::abs(this->state[0]),2) + std::pow(std::abs(this->state[1]),2)));
         double angle_rz = std::remainder(std::arg(this->state[1]) - std::arg(this->state[0]), 2*M_PI);
         double angle_ry = 0.0;

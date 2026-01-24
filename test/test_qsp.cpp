@@ -72,3 +72,27 @@ TEST(QSPTests, ComplexState2Qubits) {
     EXPECT_FALSE(visitor.qasm_code.empty());
     EXPECT_NE(visitor.qasm_code.find("OPENQASM"), std::string::npos);
 }
+
+TEST(QSPTests, GHZState) {
+
+    std::vector<std::complex<double>> state = {
+        1.0/std::sqrt(2.0),     
+        0.0,    
+        0.0,    
+        0.0,    
+        0.0,    
+        0.0,    
+        0.0,    
+        1.0j/std::sqrt(2.0)
+    };
+
+    auto qsp = qspUcrNode(&state);
+    auto visitor = qasmVisitor(3);
+
+    qsp.accept(visitor);
+
+    std::cout << visitor.qasm_code << std::endl;
+
+    EXPECT_FALSE(visitor.qasm_code.empty());
+    EXPECT_NE(visitor.qasm_code.find("OPENQASM"), std::string::npos);
+}
