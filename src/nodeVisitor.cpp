@@ -67,8 +67,22 @@ void qasmVisitor::visit(ryNode &node)
 }
 
 void qasmVisitor::visit(firstUcryNode &node) {
-    int target = _num_qubits - 1;
-    int control = target - node.get_num_qubits() + 1;
+    int control;
+    int target;
+
+    if(node.inverse){
+
+        target = _num_qubits - node.get_num_qubits();
+
+        if (active_target < target && active_target != -1) target = active_target;
+        else active_target = target;
+        control = target + node.get_num_qubits() - 1;
+        
+    }else {
+        target = _num_qubits - 1;
+        control = target - node.get_num_qubits() + 1;
+    }
+
 
     std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
     node.gate1->accept(*this);

@@ -26,8 +26,7 @@ void ucryNode::accept(nodeVisitor &visitor) {
     visitor.visit(*this);
 }
 
-
-firstUcryNode::firstUcryNode(const std::vector<double>* angles) : ucryNode(angles, true){
+firstUcryNode::firstUcryNode(const std::vector<double>* angles, const bool _inverse) : ucryNode(angles, true, false, _inverse){
 }
 
 void firstUcryNode::accept(nodeVisitor &visitor) {

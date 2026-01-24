@@ -19,8 +19,14 @@ void qspUcrNode::init(){
   
     if(num_qubits > 1){
         for (int i = 0; i < this->state.size()/2; i++){
-            this->next_state[i] = std::sqrt((std::pow(this->state[2*i],2) + std::pow(this->state[2*i+1],2)));
-            this->angles_ry[i] = 2 * std::asin(this->state[2*i+1] / this->next_state[i]);
+            double norm = std::sqrt((std::pow(this->state[2*i],2) + std::pow(this->state[2*i+1],2)));
+            this->next_state[i] = norm;
+            if (norm < 1e-12){
+                this->angles_ry[i] = 0.0;
+            } else {
+                this->angles_ry[i] = 2 * std::asin(this->state[2*i+1] / this->next_state[i]);
+            }
+            
         }
 
         next_qsp = createSubQsp(&next_state);
@@ -49,6 +55,6 @@ std::unique_ptr<qspUcrNode> qspUcrNode::createSubQsp(const std::vector<double>* 
 }
 
 std::unique_ptr<ucryNode> qspUcrNode::createUcry(const std::vector<double>* angles_ry) {
-    return std::make_unique<ucryNode>(angles_ry, false, false, true);
+    return std::make_unique<firstUcryNode>(angles_ry, true);
 }
 

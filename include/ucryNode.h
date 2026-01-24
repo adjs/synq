@@ -40,6 +40,6 @@ public:
  */
 class firstUcryNode:public ucryNode {
 public:
-    explicit firstUcryNode(const std::vector<double>* angles);
+    explicit firstUcryNode(const std::vector<double>* angles, bool _inverse=false);
     void accept(nodeVisitor &visitor) override;
 };
