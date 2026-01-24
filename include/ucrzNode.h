@@ -34,7 +34,7 @@ public:
     void accept(nodeVisitor &visitor) override;
     return_type get_data() override;
     std::unique_ptr<IASTnode> createBaseRotation(double angle) override;
-    std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles) override;
+    std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles, bool reverse) override;
 };
 
 /*

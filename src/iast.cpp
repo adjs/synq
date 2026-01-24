@@ -28,8 +28,8 @@ void UCRotationNode::init() {
             angles_left[i] = (angles[i] + angles[i + angles.size() / 2]) / 2;
             angles_right[i] = (angles[i] - angles[i + angles.size() / 2]) / 2;
         }
-        gate1 = createSubNode(&angles_left);
-        gate2 = createSubNode(&angles_right);
+        gate1 = createSubNode(&angles_left, false);
+        gate2 = createSubNode(&angles_right, true);
     } else {
         gate1 = createBaseRotation((angles[0] + angles[1]) / 2.0);
         gate2 = createBaseRotation((angles[0] - angles[1]) / 2.0);
