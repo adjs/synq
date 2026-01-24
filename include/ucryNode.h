@@ -31,7 +31,7 @@ public:
     explicit ucryNode(const std::vector<double>* angles, bool _first, bool _reverse, bool _inverse);
     void accept(nodeVisitor &visitor) override;
     std::unique_ptr<IASTnode> createBaseRotation(double angle) override;
-    std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles) override;
+    std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles, bool reverse) override;
 };
 
 /*

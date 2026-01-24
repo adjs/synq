@@ -30,6 +30,9 @@ struct return_type_visitor {
     std::string operator()(const std::vector<double> a) {
       return "";
   }
+    std::string operator()(const std::vector<std::complex<double>>& a) {
+      return ""; 
+  }
 };
 
 class qasmVisitor : public nodeVisitor {

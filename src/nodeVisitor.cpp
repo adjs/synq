@@ -15,16 +15,31 @@ qasmVisitor::qasmVisitor(int num_qubits) {
 
 void qasmVisitor::visit(rzNode &node)
 {
-    int target = _num_qubits - 1;
+    int target;
+    if (active_target != -1) {
+        target = active_target;
+    } else {
+        target = _num_qubits - 1;
+    }
+   
     qasm_code += "rz(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
     // qasm_code += "rz(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[0];\n";
 }
 
 void qasmVisitor::visit(firstUcrzNode &node) {
-    int target = _num_qubits - 1;
-    // int control = _num_qubits - node.get_num_qubits();
-    int control = target - node.get_num_qubits() + 1;
-    // int control = node.get_num_qubits() - 2;
+
+    int target;
+    int control;
+
+    if(node.inverse){
+        target = active_target;
+        control = target + node.get_num_qubits() - 1;
+    }else {
+        target = _num_qubits - 1;
+        // int control = _num_qubits - node.get_num_qubits();
+        control = target - node.get_num_qubits() + 1;
+        // int control = node.get_num_qubits() - 2;
+    }
 
     std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
     // string ctrl_not = "cx q[" + std::to_string(node.get_num_qubits()-1) +  "], q[0];\n";
@@ -36,10 +51,21 @@ void qasmVisitor::visit(firstUcrzNode &node) {
 
 
 void qasmVisitor::visit(ucrzNode &node) {
-    int target = _num_qubits - 1;
-    // int control = _num_qubits - node.get_num_qubits();
-    int control = target - node.get_num_qubits() + 1;
-    // int control = node.get_num_qubits() - 2;
+
+    int target;
+    int control;
+
+    if(node.inverse){
+        target = active_target;
+        control = target + node.get_num_qubits() - 1;
+    }else {
+        target = _num_qubits - 1;
+        // int control = _num_qubits - node.get_num_qubits();
+        control = target - node.get_num_qubits() + 1;
+        // int control = node.get_num_qubits() - 2;
+    }
+
+   
 
     std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
     // string ctrl_not = "cx q[" + std::to_string(node.get_num_qubits()-1) +  "], q[0];\n";
@@ -124,14 +150,23 @@ void qasmVisitor::visit(UCRotationNode &node) {
 }
 
 void qasmVisitor::visit(qspUcrNode &node) {
+    if (std::abs(node.global_phase) > 1e-12) {
+        qasm_code += "gphase(" + std::to_string(node.global_phase) + ");\n";
+    }
     if (node.base_ry) {
         node.base_ry->accept(*this);
+    }
+    if (node.base_rz) {
+        node.base_rz->accept(*this);
     }
     if (node.next_qsp) {
         node.next_qsp->accept(*this);
     }
     if (node.ucry) {
         node.ucry->accept(*this);
+    }
+    if (node.ucrz) {
+        node.ucrz->accept(*this);
     }
 }
 

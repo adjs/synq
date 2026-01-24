@@ -7,10 +7,12 @@
 #include <vector>
 #include <string>
 #include <variant>
+#include <complex>
 
 class nodeVisitor;
 
-using return_type = std::variant<double, std::vector<double> >;
+// Adicione std::vector<std::complex<double>> na lista
+using return_type = std::variant<double, std::vector<double>, std::vector<std::complex<double>>>;
 
 class IASTnode
 {
@@ -45,6 +47,6 @@ public:
     void accept(nodeVisitor &visitor) override;
     return_type get_data() override;
     virtual std::unique_ptr<IASTnode> createBaseRotation(double angle) = 0;
-    virtual std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles) = 0;
+    virtual std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles, bool reverse) = 0;
     void init();
 };
