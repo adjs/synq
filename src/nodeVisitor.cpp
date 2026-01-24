@@ -53,3 +53,85 @@ void qasmVisitor::visit(ucrzNode &node) {
     node.gate2->accept(*this);
     // qasm_code += ctrl_not; // TODO: Remover este cnot
 }
+
+void qasmVisitor::visit(ryNode &node)
+{
+    int target;
+    if (active_target != -1) {
+        target = active_target;
+    } else {
+        target = _num_qubits - 1;
+    }
+   
+    qasm_code += "ry(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
+}
+
+void qasmVisitor::visit(firstUcryNode &node) {
+    int control;
+    int target;
+
+    if(node.inverse){
+
+        target = _num_qubits - node.get_num_qubits();
+
+        if (active_target < target && active_target != -1) target = active_target;
+        else active_target = target;
+        control = target + node.get_num_qubits() - 1;
+        
+    }else {
+        target = _num_qubits - 1;
+        control = target - node.get_num_qubits() + 1;
+    }
+
+
+    std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
+    node.gate1->accept(*this);
+    qasm_code += ctrl_not;
+    node.gate2->accept(*this);
+    qasm_code += ctrl_not;
+}
+
+void qasmVisitor::visit(ucryNode &node) {
+
+    int control;
+    int target;
+
+    if(node.inverse){
+
+        target = _num_qubits - node.get_num_qubits();
+
+        if (active_target < target && active_target != -1) target = active_target;
+        else active_target = target;
+        control = target + node.get_num_qubits() - 1;
+        
+    }else {
+        target = _num_qubits - 1;
+        control = target - node.get_num_qubits() + 1;
+    }
+
+    std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
+    if (node.reverse_gate) {
+        node.gate1->reverse_gate = !node.gate1->reverse_gate;
+        node.gate2->reverse_gate = !node.gate2->reverse_gate;
+        std::swap(node.gate1, node.gate2);
+    }
+    node.gate1->accept(*this);
+    qasm_code += ctrl_not;
+    node.gate2->accept(*this);
+}
+
+void qasmVisitor::visit(UCRotationNode &node) {
+}
+
+void qasmVisitor::visit(qspUcrNode &node) {
+    if (node.base_ry) {
+        node.base_ry->accept(*this);
+    }
+    if (node.next_qsp) {
+        node.next_qsp->accept(*this);
+    }
+    if (node.ucry) {
+        node.ucry->accept(*this);
+    }
+}
+

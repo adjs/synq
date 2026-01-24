@@ -25,6 +25,8 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 add_library(SynthQ
+        src/qspUcrNode.cpp
+        include/qspUcrNode.h
         src/one_qubit_gate.cpp
         include/one_qubit_gate.h
         src/unitary.cpp
@@ -33,12 +35,18 @@ add_library(SynthQ
         include/ctrl_qubit_gate.h
         src/ucrzNode.cpp
         include/ucrzNode.h
+        src/ucryNode.cpp
+        include/ucryNode.h
+        src/iast.cpp
+        include/iast.h
         src/nodeVisitor.cpp
-        include/nodeVisitor.h)
+        include/nodeVisitor.h
+        )
 
 add_executable(Test
         test/test_one_qubit.cpp
-        test/test_mcgates.cpp)
+        test/test_mcgates.cpp
+        test/test_qsp.cpp)
 
 target_link_libraries(
         Test
