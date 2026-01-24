@@ -9,6 +9,11 @@
 #include "ucryNode.h"
 
 
+/*
+ * qsp --> qsp ucry
+ *       | ry
+ */
+
 class qspUcrNode final: public IASTnode {
 public:
     bool first = false;
