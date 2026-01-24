@@ -30,6 +30,9 @@ public:
 
     int name;
     explicit ucrzNode(const std::vector<double>* angles, bool _first, bool _reverse, bool _inverse);
+    ~ucrzNode() override;                        
+    void accept(nodeVisitor &visitor) override;
+    return_type get_data() override;
     std::unique_ptr<IASTnode> createBaseRotation(double angle) override;
     std::unique_ptr<UCRotationNode> createSubNode(const std::vector<double>* subAngles) override;
 };
@@ -40,6 +43,6 @@ public:
  */
 class firstUcrzNode:public ucrzNode {
 public:
-    explicit firstUcrzNode(const std::vector<double>* angles);
+    explicit firstUcrzNode(const std::vector<double>* angles, bool _inverse=false);
     void accept(nodeVisitor &visitor) override;
 };

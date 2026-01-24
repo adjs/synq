@@ -7,10 +7,12 @@
 #include <vector>
 #include <string>
 #include <variant>
+#include <complex>
 
 class nodeVisitor;
 
-using return_type = std::variant<double, std::vector<double> >;
+// Adicione std::vector<std::complex<double>> na lista
+using return_type = std::variant<double, std::vector<double>, std::vector<std::complex<double>>>;
 
 class IASTnode
 {

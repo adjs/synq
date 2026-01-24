@@ -19,10 +19,10 @@ std::unique_ptr<IASTnode> ucrzNode::createBaseRotation(double angle) {
 }
 
 std::unique_ptr<UCRotationNode> ucrzNode::createSubNode(const std::vector<double>* subAngles) {
-    return std::make_unique<ucrzNode>(subAngles, false, false);
+    return std::make_unique<ucrzNode>(subAngles, false, false, this->inverse);
 }
 
-firstUcrzNode::firstUcrzNode(const std::vector<double>* angles) : ucrzNode(angles, true){
+firstUcrzNode::firstUcrzNode(const std::vector<double>* angles, const bool _inverse) : ucrzNode(angles, true, false, _inverse){
 }
 
 void firstUcrzNode::accept(nodeVisitor &visitor) {
@@ -49,4 +49,16 @@ void rzNode::accept(nodeVisitor &visitor) {
 
 return_type rzNode::get_data() {
     return angle;
+}
+
+
+ucrzNode::~ucrzNode() {
+}
+
+void ucrzNode::accept(nodeVisitor &visitor) {
+    visitor.visit(*this);
+}
+
+return_type ucrzNode::get_data() {
+    return std::vector<double>{}; 
 }
