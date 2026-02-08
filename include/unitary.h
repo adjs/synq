@@ -7,8 +7,8 @@
 #include <string>
 class unitary {
 public:
-    explicit unitary(const Eigen::MatrixXcd &);
+    explicit unitary(const Eigen::MatrixXcf &);
     std::string unitary2qasm();
 private:
-    Eigen::MatrixXcd data;
+    Eigen::MatrixXcf data;
 };

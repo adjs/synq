@@ -4,7 +4,7 @@
 
 #include "../include/unitary.h"
 
-unitary::unitary(const Eigen::MatrixXcd &uMatrix) {
+unitary::unitary(const Eigen::MatrixXcf &uMatrix) {
     data = uMatrix;
 }
 

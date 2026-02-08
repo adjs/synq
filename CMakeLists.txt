@@ -17,7 +17,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 find_package(LAPACK REQUIRED)
-if (${APPLE})
+if (APPLE)
 
         set(OpenBLAS_DIR "/opt/homebrew/opt/openblas") # Example path
         include_directories(${OpenBLAS_DIR}/include)
@@ -27,6 +27,10 @@ if (${APPLE})
         include_directories(${LAPACKE_DIR}/include
                 /opt/homebrew/include/eigen3)
         link_directories(${LAPACKE_DIR}/lib)
+endif()
+
+if (UNIX AND NOT APPLE)
+        include_directories("/usr/local/include/eigen-3.4.0/")
 endif()
 
 enable_testing()
@@ -52,6 +56,8 @@ add_library(SynthQ
         include/nodeVisitor.h
         src/randomUnitary.cpp
         include/randomUnitary.h
+        src/qsd.cpp
+        include/qsd.h
 )
 
 add_executable(Test
@@ -59,9 +65,10 @@ add_executable(Test
         test/test_mcgates.cpp
         test/test_qsp.cpp
         test/test_csd.cpp
-        test/test_rnd_unitary.cpp)
+        test/test_rnd_unitary.cpp
+        test/test_qsd.cpp)
 
-if (${UNIX})
+if (UNIX AND NOT APPLE)
         target_link_libraries(
                 Test
                 GTest::gtest_main

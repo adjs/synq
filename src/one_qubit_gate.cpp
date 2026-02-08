@@ -9,7 +9,7 @@
 #include "../include/one_qubit_gate.h"
 #include <complex>
 
-zyz_result OneQubit::zyz_decomposition(Eigen::Matrix2cd uMatrix) {
+zyz_result OneQubit::zyz_decomposition(Eigen::Matrix2cf uMatrix) {
 
     double const x00 = arg(uMatrix(0, 0));
     double const x01 = arg(uMatrix(0, 1)) + M_PI;
@@ -24,31 +24,38 @@ zyz_result OneQubit::zyz_decomposition(Eigen::Matrix2cd uMatrix) {
     b << x00, x01, x10;
 
     Eigen::Vector3d angles = A.lu().solve(b);
-    double const gamma =  acos(abs(uMatrix(0, 0))) * 2;
-    double const alpha =  angles(0);
-    double const beta =  angles(1);
-    double const delta =  angles(2);
+    float const gamma =  acos(abs(uMatrix(0, 0))) * 2;
+    float const alpha =  angles(0);
+    float const beta =  angles(1);
+    float const delta =  angles(2);
     return {alpha, beta, gamma, delta};
 
 }
 
-Eigen::Matrix2cd OneQubit::h_matrix() {
-    Eigen::Matrix2cd const h =
-        (Eigen::Matrix2cd() <<  1./sqrt(2.)+0i, 1./sqrt(2.)+0i,
-                                1./sqrt(2.)+0i, -1./sqrt(2.)+0i).finished();
+Eigen::Matrix2cf OneQubit::h_matrix() {
+    Eigen::Matrix2cf const h =
+        (Eigen::Matrix2cf() <<  1.0f/sqrtf(2.0f)+0.0if, 1.0f/sqrtf(2.f)+0.0if,
+                                1.0f/sqrtf(2.0f)+0.0if, -1.0f/sqrtf(2.f)+0.0if).finished();
     return h;
 }
 
-Eigen::Matrix2cd OneQubit::ry_matrix(double theta) {
-    Eigen::Matrix2cd const ry =
-        (Eigen::Matrix2cd() << cos(theta/2)+0.i, -sin(theta/2)+0.i,
-                               sin(theta/2)+0.i, cos(theta/2)+0.i).finished();
+Eigen::Matrix2cf OneQubit::x_matrix() {
+    Eigen::Matrix2cf const x =
+        (Eigen::Matrix2cf() << 0.0f + 0.0if, 1.0f + 0.0if,
+                                  1.0f + 0.0if, 0.0f + 0.0if).finished();
+    return x;
+}
+
+Eigen::Matrix2cf OneQubit::ry_matrix(float theta) {
+    Eigen::Matrix2cf const ry =
+        (Eigen::Matrix2cf() << cosf(theta/2)+0.if, -sinf(theta/2)+0.if,
+                               sinf(theta/2)+0.if, cosf(theta/2)+0.if).finished();
     return ry;
 }
 
-Eigen::Matrix2cd OneQubit::rz_matrix(double theta) {
-    Eigen::Matrix2cd const rz =
-        (Eigen::Matrix2cd() << exp(-theta*1.i/2.), 0.i,
-                               0.i,              exp(theta*1i/2.)).finished();
+Eigen::Matrix2cf OneQubit::rz_matrix(float theta) {
+    Eigen::Matrix2cf const rz =
+        (Eigen::Matrix2cf() << exp(-theta*1.if/2.f), 0.if,
+                               0.if,              exp(theta*1if/2.f)).finished();
     return rz;
 }
