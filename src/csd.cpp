@@ -99,8 +99,8 @@ bool verify(Eigen::MatrixXcf& unitary, csd_result result) {
 
 
     const int r = result.theta.size();
-    Eigen::MatrixXcf S(r, r);
-    Eigen::MatrixXcf C(r, r);
+    Eigen::MatrixXcf S = Eigen::MatrixXcf::Zero(r, r);
+    Eigen::MatrixXcf C = Eigen::MatrixXcf::Zero(r, r);
     Eigen::MatrixXcf sigma(2*r, 2*r);
     for (int i = 0; i < r; ++i) {
         S(i, i) = sin(result.theta[i]);

@@ -1,16 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED On)
 
-IF (WIN32)
-include_directories(c:/include)
-ENDIF()
+# GoogleTest requires at least C++17
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(SynthQ VERSION 0.0.1)
 project(Test)
-# GoogleTest requires at least C++17
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 include(FetchContent)
@@ -21,8 +16,13 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-
+find_package(LAPACK REQUIRED)
 if (${APPLE})
+
+        set(OpenBLAS_DIR "/opt/homebrew/opt/openblas") # Example path
+        include_directories(${OpenBLAS_DIR}/include)
+        link_directories(${OpenBLAS_DIR}/lib)
+
         set(LAPACKE_DIR "/opt/homebrew/Cellar/lapack/3.12.1/")
         include_directories(${LAPACKE_DIR}/include
                 /opt/homebrew/include/eigen3)
@@ -50,20 +50,36 @@ add_library(SynthQ
         include/iast.h
         src/nodeVisitor.cpp
         include/nodeVisitor.h
-        )
+        src/randomUnitary.cpp
+        include/randomUnitary.h
+)
 
 add_executable(Test
         test/test_one_qubit.cpp
         test/test_mcgates.cpp
         test/test_qsp.cpp
-        test/test_csd.cpp)
+        test/test_csd.cpp
+        test/test_rnd_unitary.cpp)
 
-target_link_libraries(
-        Test
-        GTest::gtest_main
-        SynthQ
-        lapacke
-)
+if (${UNIX})
+        target_link_libraries(
+                Test
+                GTest::gtest_main
+                SynthQ
+                lapacke
+        )
+endif()
+
+if (${APPLE})
+        target_link_libraries(
+                Test
+                GTest::gtest_main
+                SynthQ
+                openblas
+                lapacke
+        )
+endif()
+target_link_libraries(Test ${BLAS_LIBRARIES})
 
 include(GoogleTest)
 
