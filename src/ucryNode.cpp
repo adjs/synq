@@ -3,10 +3,8 @@
 //
 
 #include "../include/ucryNode.h"
+#include "../include/ryNode.h"
 
-#include <algorithm>
-#include<cmath>
-#include <iostream>
 #include <ostream>
 #include "../include/nodeVisitor.h"
 
@@ -31,22 +29,4 @@ firstUcryNode::firstUcryNode(const std::vector<double>* angles, const bool _inve
 
 void firstUcryNode::accept(nodeVisitor &visitor) {
     visitor.visit(*this);
-}
-
-ryNode::ryNode(const double theta) {
-    num_qubits = 1;
-    angle = theta;
-}
-
-ryNode::ryNode() {
-    num_qubits = 1;
-    angle = 0.0;
-}
-
-void ryNode::accept(nodeVisitor &visitor) {
-    visitor.visit(*this);
-}
-
-return_type ryNode::get_data() {
-    return angle;
 }

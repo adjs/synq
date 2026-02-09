@@ -58,6 +58,12 @@ add_library(SynthQ
         include/randomUnitary.h
         src/qsd.cpp
         include/qsd.h
+        src/ryNode.cpp
+        include/ryNode.h
+        include/rzNode.h
+        src/rzNode.cpp
+        include/ucRotationNode.h
+        src/ucRotationNode.cpp
 )
 
 add_executable(Test
