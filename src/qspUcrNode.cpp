@@ -52,8 +52,8 @@ void qspUcrNode::init(){
             angle_ry = std::abs(this->state[1]) / base_norm;
         }
 
-        this->base_ry = createBaseRy(2 * std::asin(angle_ry));
-        this->base_rz = createBaseRz(angle_rz);
+        this->ucry = createBaseRy(2 * std::asin(angle_ry));
+        this->ucrz = createBaseRz(angle_rz);
     }
 
 }

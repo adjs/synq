@@ -145,12 +145,6 @@ void qasmVisitor::visit(qspUcrNode &node) {
     if (std::abs(node.global_phase) > 1e-12) {
         qasm_code += "gphase(" + std::to_string(node.global_phase) + ");\n";
     }
-    if (node.base_ry) {
-        node.base_ry->accept(*this);
-    }
-    if (node.base_rz) {
-        node.base_rz->accept(*this);
-    }
     if (node.next_qsp) {
         node.next_qsp->accept(*this);
     }

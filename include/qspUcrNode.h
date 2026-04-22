@@ -25,10 +25,8 @@ public:
     double global_phase = 0.0;
    
     std::unique_ptr<IASTnode> next_qsp;
-    std::unique_ptr<ucryNode> ucry;
-    std::unique_ptr<ucrzNode> ucrz;
-    std::unique_ptr<ryNode> base_ry;
-    std::unique_ptr<rzNode> base_rz;
+    std::unique_ptr<IASTnode> ucry;
+    std::unique_ptr<IASTnode> ucrz;
 
     explicit qspUcrNode(const std::vector<std::complex<double>>* state);
 
