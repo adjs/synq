@@ -15,7 +15,7 @@ int main() {
     test_t();
     test_rnd();
 
-    // Eigen::MatrixXcf A(4, 4);
+    // Eigen::MatrixXcd A(4, 4);
     // A << 1.1f + 2.0fi, 5.0f + 6.0fi, 1.0f + 2.0fi, 5.0f + 6.0fi,
     //      3.0f + 4.0fi, 7.0f + 8.0fi, 3.0f + 4.0fi, 7.0f + 8.0fi,
     //      1.0f + 2.0fi, 5.0f + 6.0fi, 1.0f + 2.0fi, 5.0f + 6.0fi,
@@ -98,7 +98,7 @@ int main() {
 
 void test_x() {
     // test x gate
-    Eigen::MatrixXcf A(2, 2);
+    Eigen::MatrixXcd A(2, 2);
     A << 0.0f + 0.0fi,  1.0f + 0.0fi,
          1.0f + 0.0fi, 0.0f + 0.0fi;
 
@@ -110,7 +110,7 @@ void test_x() {
 }
 
 void test_t() {
-    Eigen::MatrixXcf T(4, 4);
+    Eigen::MatrixXcd T(4, 4);
     T << 1.0f + 0.0fi, 0.0f + 0.0fi,  0.0f + 0.0fi,  0.0f + 0.0fi,
          0.0f + 0.0fi, 1.0f + 0.0fi,  0.0f + 0.0fi,  0.0f + 0.0fi,
          0.0f + 0.0fi, 0.0f + 0.0fi,  0.0f + 0.0fi,  1.0f + 0.0fi,
@@ -124,7 +124,7 @@ void test_t() {
 }
 
 void test_rnd() {
-    Eigen::MatrixXcf T(4, 4);
+    Eigen::MatrixXcd T(4, 4);
     T << (2.364882618857422347e-01-4.822143073226670129e-01j),
     (6.829647732695640072e-02+4.447897757628520299e-02j),
     (5.115007388835463020e-01-9.529865837327188005e-02j),

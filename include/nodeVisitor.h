@@ -3,10 +3,19 @@
 //
 
 #pragma once
+
+#include <Eigen/Dense>
+#include <variant>
+#include <vector>
+#include <complex>
+#include <string>
+
 #include "ucrzNode.h"
 #include "ucryNode.h"
 #include "qspUcrNode.h"
-
+#include "csdNode.h"
+#include "qsdNode.h"
+#include "unitaryGateNode.h"
 
 class nodeVisitor {
 public:
@@ -19,25 +28,46 @@ public:
     virtual void visit(firstUcryNode &node) = 0;
     virtual void visit(UCRotationNode &node) = 0;
     virtual void visit(qspUcrNode &node) = 0;
+    virtual void visit(csdNode &node) = 0;
+    virtual void visit(qsdNode &node) = 0;
+    virtual void visit(unitaryGateNode &node) = 0;
+    virtual void visit(unitaryOneQubitGateNode &node) = 0;
 };
 
 struct return_type_visitor {
-  std::string operator()(const double a) {
-      return std::to_string(a);
-  }
-    std::string operator()(const std::vector<double> a) {
-      return "";
-  }
+    std::string operator()(std::monostate) {
+        return "";
+    }
+
+    std::string operator()(const double a) {
+        return std::to_string(a);
+    }
+    
+    std::string operator()(const std::vector<double> a) { 
+        return "";
+    }
+    
     std::string operator()(const std::vector<std::complex<double>>& a) {
-      return ""; 
-  }
+        return ""; 
+    }
+
+    std::string operator()(const Eigen::MatrixXcd& a) {
+        return "";
+    }
+
+    std::string operator()(const std::pair<Eigen::MatrixXcd, Eigen::MatrixXcd>& a) {
+        return "";
+    }
 };
 
 class qasmVisitor : public nodeVisitor {
 public:
     std::string qasm_code;
     int _num_qubits;
+    int current_msb;
     int active_target = -1;
+    bool gate_synthesis = false;
+    double global_phase = 0;
     explicit qasmVisitor(int num_qubits);
     void visit(rzNode &node) override;
     void visit(firstUcrzNode &node) override;
@@ -47,4 +77,9 @@ public:
     void visit(ucryNode &node) override;
     void visit(UCRotationNode &node) override;
     void visit(qspUcrNode &node) override;
+    void visit(csdNode &node) override;
+    void visit(qsdNode &node) override;
+    void visit(unitaryGateNode &node) override;
+    void visit(unitaryOneQubitGateNode &node) override;
+
 };

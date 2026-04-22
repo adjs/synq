@@ -7,10 +7,10 @@
 #include <Eigen/Dense>
 
 struct qsd_result {
-    Eigen::VectorXcf list_d;
-    Eigen::MatrixXcf gate_v;
-    Eigen::MatrixXcf gate_w;
+    Eigen::VectorXcd list_d;
+    Eigen::MatrixXcd gate_v;
+    Eigen::MatrixXcd gate_w;
 };
 
-qsd_result qsd(Eigen::MatrixXcf gate1, Eigen::MatrixXcf gate2);
+qsd_result qsd(Eigen::MatrixXcd gate1, Eigen::MatrixXcd gate2);
 

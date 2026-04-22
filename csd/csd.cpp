@@ -5,7 +5,7 @@
 #include "csd.h"
 #include<iostream>
 
-csd_result csd(Eigen::MatrixXcf& unitary, int p, int q) {
+csd_result csd(Eigen::MatrixXcd& unitary, int p, int q) {
     int m = unitary.rows();
     int n = unitary.cols();
 
@@ -50,10 +50,10 @@ csd_result csd(Eigen::MatrixXcf& unitary, int p, int q) {
 
     if (info != 0) std::cerr << "LAPACKE_cuncsd: " << info << std::endl;
 
-    const Eigen::Map<Eigen::MatrixXcf> out_U1(U1, p, p);
-    const Eigen::Map<Eigen::MatrixXcf> out_U2(U2, m-p, m-p);
-    const Eigen::Map<Eigen::MatrixXcf> out_V1T(V1T, p, p);
-    const Eigen::Map<Eigen::MatrixXcf> out_V2T(V2T, m-p, m-p);
+    const Eigen::Map<Eigen::MatrixXcd> out_U1(U1, p, p);
+    const Eigen::Map<Eigen::MatrixXcd> out_U2(U2, m-p, m-p);
+    const Eigen::Map<Eigen::MatrixXcd> out_V1T(V1T, p, p);
+    const Eigen::Map<Eigen::MatrixXcd> out_V2T(V2T, m-p, m-p);
     const std::vector<double> out_theta(theta, theta + r);
 
     csd_result out;
@@ -70,7 +70,7 @@ csd_result csd(Eigen::MatrixXcf& unitary, int p, int q) {
     return out;
 }
 
-lapack_complex_float* eigen2lapack(Eigen::MatrixXcf& unitary, const int start_line, const int start_col, const int n_rows, const int n_cols) {
+lapack_complex_float* eigen2lapack(Eigen::MatrixXcd& unitary, const int start_line, const int start_col, const int n_rows, const int n_cols) {
     lapack_complex_float* U1 = new lapack_complex_float[n_rows * n_cols];
 
     for (int j = 0; j < n_cols; ++j)
@@ -82,26 +82,26 @@ lapack_complex_float* eigen2lapack(Eigen::MatrixXcf& unitary, const int start_li
     return U1;
 }
 
-bool verify(Eigen::MatrixXcf& unitary, csd_result result) {
+bool verify(Eigen::MatrixXcd& unitary, csd_result result) {
 
     const int n_rows = unitary.rows();
     const int n_cols = unitary.cols();
     const int p = result.U1.rows();
     const int q = result.V1T.rows();
 
-    Eigen::MatrixXcf U = Eigen::MatrixXcf::Zero(n_rows, n_cols);
+    Eigen::MatrixXcd U = Eigen::MatrixXcd::Zero(n_rows, n_cols);
     U.block(0, 0, p, p) = result.U1;
     U.block(p, p, n_rows-p, n_rows-p) = result.U2;
 
-    Eigen::MatrixXcf V = Eigen::MatrixXcf::Zero(n_rows, n_cols);
+    Eigen::MatrixXcd V = Eigen::MatrixXcd::Zero(n_rows, n_cols);
     V.block(0, 0, q, q) = result.V1T;
     V.block(q, q, n_rows-q, n_rows-q) = result.V2T;
 
 
     const int r = result.theta.size();
-    Eigen::MatrixXcf S(r, r);
-    Eigen::MatrixXcf C(r, r);
-    Eigen::MatrixXcf sigma(2*r, 2*r);
+    Eigen::MatrixXcd S(r, r);
+    Eigen::MatrixXcd C(r, r);
+    Eigen::MatrixXcd sigma(2*r, 2*r);
     for (int i = 0; i < r; ++i) {
         S(i, i) = sin(result.theta[i]);
         C(i, i) = cos(result.theta[i]);
@@ -109,7 +109,7 @@ bool verify(Eigen::MatrixXcf& unitary, csd_result result) {
 
     sigma << C, -S, S, C;
 
-    Eigen::MatrixXcf out = V * sigma * U;
+    Eigen::MatrixXcd out = V * sigma * U;
     if (out.isApprox(unitary)) return true;
     return false;
 }

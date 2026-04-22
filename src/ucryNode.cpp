@@ -30,3 +30,7 @@ firstUcryNode::firstUcryNode(const std::vector<double>* angles, const bool _inve
 void firstUcryNode::accept(nodeVisitor &visitor) {
     visitor.visit(*this);
 }
+
+return_type ucryNode::get_data() {
+    return std::vector<double>{}; 
+}

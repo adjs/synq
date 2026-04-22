@@ -8,11 +8,20 @@
 #include <string>
 #include <variant>
 #include <complex>
+#include <utility>
+
+#include <Eigen/Dense>
 
 class nodeVisitor;
 
-// Adicione std::vector<std::complex<double>> na lista
-using return_type = std::variant<double, std::vector<double>, std::vector<std::complex<double>>>;
+using return_type = std::variant<
+    std::monostate,                       
+    double,                               
+    std::vector<double>,                  
+    std::vector<std::complex<double>>,    
+    Eigen::MatrixXcd,                     
+    std::pair<Eigen::MatrixXcd, Eigen::MatrixXcd>
+>;
 
 /**
  * IASTnode class is the base class of the Abstract Syntax Tree

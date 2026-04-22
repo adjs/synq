@@ -8,7 +8,7 @@ using namespace std::complex_literals;
 
 
 struct zyz_result{
-    float alpha, beta, gamma, delta;
+    double alpha, beta, gamma, delta;
 };
 
 class OneQubit{
@@ -19,29 +19,29 @@ public:
      * @return alpha, beta, gamma and delta where
      * e^(i alpha)Rz(beta)Ry(gamma)Rz(delta) = uMatrix
      */
-    static zyz_result zyz_decomposition(Eigen::Matrix2cf uMatrix);
+    static zyz_result zyz_decomposition(Eigen::Matrix2cd uMatrix);
 
     /*
      * @return Hadamard matrix
      */
-    static Eigen::Matrix2cf h_matrix();
+    static Eigen::Matrix2cd h_matrix();
 
     /*
      * @return X matrix
      */
-    static Eigen::Matrix2cf x_matrix();
+    static Eigen::Matrix2cd x_matrix();
 
     /*
      * @return Ry(theta) matrix
      * @param theta rotation angle
      */
-    static Eigen::Matrix2cf ry_matrix(float theta);
+    static Eigen::Matrix2cd ry_matrix(double theta);
 
     /*
      * @param theta rotation angle
      * @return Rz(theta) matrix
      */
-    static Eigen::Matrix2cf rz_matrix(float theta);
+    static Eigen::Matrix2cd rz_matrix(double theta);
 
 };
 

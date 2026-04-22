@@ -7,6 +7,7 @@
 
 qasmVisitor::qasmVisitor(int num_qubits) {
     _num_qubits = num_qubits;
+    current_msb = _num_qubits - 1;
     qasm_code += "OPENQASM 3.0;\n";
     qasm_code += "include \"stdgates.inc\";\n\n";
 
@@ -19,11 +20,10 @@ void qasmVisitor::visit(rzNode &node)
     if (active_target != -1) {
         target = active_target;
     } else {
-        target = _num_qubits - 1;
+        target = current_msb;
     }
    
     qasm_code += "rz(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
-    // qasm_code += "rz(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[0];\n";
 }
 
 void qasmVisitor::visit(firstUcrzNode &node) {
@@ -35,14 +35,11 @@ void qasmVisitor::visit(firstUcrzNode &node) {
         target = active_target;
         control = target + node.get_num_qubits() - 1;
     }else {
-        target = _num_qubits - 1;
-        // int control = _num_qubits - node.get_num_qubits();
-        control = target - node.get_num_qubits() + 1;
-        // int control = node.get_num_qubits() - 2;
+        target = current_msb;
+        control = gate_synthesis ? (node.get_num_qubits() - 2) : (target - node.get_num_qubits() + 1);
     }
 
     std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
-    // string ctrl_not = "cx q[" + std::to_string(node.get_num_qubits()-1) +  "], q[0];\n";
     node.gate1->accept(*this);
     qasm_code += ctrl_not;
     node.gate2->accept(*this);
@@ -59,16 +56,12 @@ void qasmVisitor::visit(ucrzNode &node) {
         target = active_target;
         control = target + node.get_num_qubits() - 1;
     }else {
-        target = _num_qubits - 1;
-        // int control = _num_qubits - node.get_num_qubits();
-        control = target - node.get_num_qubits() + 1;
-        // int control = node.get_num_qubits() - 2;
+        target = current_msb;
+        control = gate_synthesis ? (node.get_num_qubits() - 2) : (target - node.get_num_qubits() + 1);
     }
 
    
-
     std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
-    // string ctrl_not = "cx q[" + std::to_string(node.get_num_qubits()-1) +  "], q[0];\n";
     if (node.reverse_gate) {
         node.gate1->reverse_gate = !node.gate1->reverse_gate;
         node.gate2->reverse_gate = !node.gate2->reverse_gate;
@@ -77,7 +70,6 @@ void qasmVisitor::visit(ucrzNode &node) {
     node.gate1->accept(*this);
     qasm_code += ctrl_not;
     node.gate2->accept(*this);
-    // qasm_code += ctrl_not; // TODO: Remover este cnot
 }
 
 void qasmVisitor::visit(ryNode &node)
@@ -86,7 +78,7 @@ void qasmVisitor::visit(ryNode &node)
     if (active_target != -1) {
         target = active_target;
     } else {
-        target = _num_qubits - 1;
+        target = current_msb;
     }
    
     qasm_code += "ry(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
@@ -105,8 +97,8 @@ void qasmVisitor::visit(firstUcryNode &node) {
         control = target + node.get_num_qubits() - 1;
         
     }else {
-        target = _num_qubits - 1;
-        control = target - node.get_num_qubits() + 1;
+        target = current_msb;
+        control = gate_synthesis ? (node.get_num_qubits() - 2) : (target - node.get_num_qubits() + 1);
     }
 
 
@@ -131,8 +123,8 @@ void qasmVisitor::visit(ucryNode &node) {
         control = target + node.get_num_qubits() - 1;
         
     }else {
-        target = _num_qubits - 1;
-        control = target - node.get_num_qubits() + 1;
+        target = current_msb;
+        control = gate_synthesis ? (node.get_num_qubits() - 2) : (target - node.get_num_qubits() + 1);
     }
 
     std::string ctrl_not = "cx q[" + std::to_string(control) +  "], q[" + std::to_string(target) + "];\n";
@@ -170,3 +162,55 @@ void qasmVisitor::visit(qspUcrNode &node) {
     }
 }
 
+void qasmVisitor::visit(unitaryGateNode &node) {
+
+    gate_synthesis = true;
+
+    int previous_msb = current_msb;
+
+    current_msb = node.get_num_qubits() - 1;
+
+    if (node.num_qubits > 1) {
+        node.csd->accept(*this);
+    } else {
+        node.base_unitary->accept(*this);
+    }
+
+    if (node.get_num_qubits() == _num_qubits) {
+        global_phase = std::fmod(global_phase, 2 * M_PI);
+        qasm_code += "gphase(" + std::to_string(global_phase) + ");\n";
+    }
+    
+    current_msb = previous_msb;
+}
+
+void qasmVisitor::visit(qsdNode &node) {
+    if (node.gate_w) {
+        node.gate_w->accept(*this);
+    }
+    if (node.ucrz) {
+        node.ucrz->accept(*this);
+    }
+    if (node.gate_v) {
+        node.gate_v->accept(*this);
+    }
+}
+
+void qasmVisitor::visit(csdNode &node) {
+    if (node.qsd2) {
+        node.qsd2->accept(*this);
+    }
+    if (node.ucry) {
+        node.ucry->accept(*this);
+    }
+    if (node.qsd1) {
+        node.qsd1->accept(*this);
+    }
+}
+
+void qasmVisitor::visit(unitaryOneQubitGateNode &node){
+    global_phase += node.params.alpha;
+    qasm_code += "rz(" + std::to_string(node.params.delta) + ") q[" + std::to_string(0) + "];\n";
+    qasm_code += "ry(" + std::to_string(node.params.gamma) + ") q[" + std::to_string(0) + "];\n";
+    qasm_code += "rz(" + std::to_string(node.params.beta) + ") q[" + std::to_string(0) + "];\n";
+}

@@ -13,5 +13,5 @@
 using namespace Eigen;
 using namespace std;
 
-MatrixXcf generate_gaussian_complex_matrix(int n);
-MatrixXcf random_unitary_matrix(int n);
+MatrixXcd generate_gaussian_complex_matrix(int n);
+MatrixXcd random_unitary_matrix(int n);

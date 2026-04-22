@@ -40,3 +40,7 @@ void UCRotationNode::accept(nodeVisitor &visitor) {
 return_type UCRotationNode::get_data() {
     return angles;
 }
+
+int IASTnode::get_num_qubits() {
+    return num_qubits;
+}

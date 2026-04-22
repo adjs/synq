@@ -17,6 +17,7 @@ public:
     bool first=false;
 
     int name;
+    return_type get_data() override;
     explicit ucryNode(const std::vector<double>* angles, bool _first, bool _reverse, bool _inverse);
     void accept(nodeVisitor &visitor) override;
     std::unique_ptr<IASTnode> createBaseRotation(double angle) override;

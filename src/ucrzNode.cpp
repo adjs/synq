@@ -29,10 +29,6 @@ void firstUcrzNode::accept(nodeVisitor &visitor) {
     visitor.visit(*this);
 }
 
-int IASTnode::get_num_qubits() {
-    return num_qubits;
-}
-
 ucrzNode::~ucrzNode() {
 }
 
