@@ -6,6 +6,9 @@
 #include "../include/one_qubit_gate.h"
 #include "../include/csdNode.h"
 #include "../include/nodeVisitor.h"
+#include "../include/twoQubitsUnitary.h"
+#include "../include/ryNode.h"
+#include "../include/rzNode.h"
 #include <stdexcept>
 #include <cmath>
 
@@ -31,14 +34,31 @@ unitaryGateNode::unitaryGateNode(const Eigen::MatrixXcd& matrix) : data(matrix) 
 }
 
 void unitaryGateNode::init(){
-    if (num_qubits > 1) {
+    if (num_qubits > 2) {
         csd = createCSD(data);
+    } else if (num_qubits == 2) {
+        csd = createTwoQubitUnitary(data);
     } else {
-        base_unitary = createBaseUnitary(data);
+        csd = createBaseUnitary(data);
     }
 }
 
-unitaryOneQubitGateNode::unitaryOneQubitGateNode(const zyz_result& zyz_params) : params(zyz_params) {
+unitaryOneQubitGateNode::unitaryOneQubitGateNode(const zyz_result& zyz_params, int position) : params(zyz_params), position(position) {
+}
+
+twoQubitGateNode::twoQubitGateNode(const Eigen::MatrixXcd& matrix) {
+    auto decomp_result = twoQubitsUnitaryDecomposition(matrix);
+    
+    gate_a = unitaryGateNode::createBaseUnitary(decomp_result.A, 0);
+    gate_b = unitaryGateNode::createBaseUnitary(decomp_result.B, 1);
+    gate_c = unitaryGateNode::createBaseUnitary(decomp_result.C, 1);
+    gate_d = unitaryGateNode::createBaseUnitary(decomp_result.D, 0);
+    
+    rz_theta = rzNode::createRzNode(-1 * decomp_result.angleRz, 1); 
+    ry1_theta = ryNode::createRyNode(-1 *decomp_result.angleRy1, 0);
+    ry2_theta = ryNode::createRyNode( decomp_result.angleRy2, 0);
+    
+    phase = decomp_result.phase;
 }
 
 void unitaryOneQubitGateNode::accept(nodeVisitor &visitor) {
@@ -54,13 +74,17 @@ return_type unitaryOneQubitGateNode::get_data() {
     }; 
 }
 
-std::unique_ptr<csdNode> unitaryGateNode::createCSD(const Eigen::MatrixXcd& matrix) {
+std::unique_ptr<IASTnode> unitaryGateNode::createCSD(const Eigen::MatrixXcd& matrix) {
     return std::make_unique<csdNode>(matrix);
 }
 
-std::unique_ptr<unitaryOneQubitGateNode> unitaryGateNode::createBaseUnitary(const Eigen::MatrixXcd& matrix) {
+std::unique_ptr<IASTnode> unitaryGateNode::createBaseUnitary(const Eigen::MatrixXcd& matrix, int position) {
     auto zyz = OneQubit::zyz_decomposition(matrix);
-    return std::make_unique<unitaryOneQubitGateNode>(zyz);
+    return std::make_unique<unitaryOneQubitGateNode>(zyz, position);
+}
+
+std::unique_ptr<IASTnode> unitaryGateNode::createTwoQubitUnitary(const Eigen::MatrixXcd& matrix) {
+    return std::make_unique<twoQubitGateNode>(matrix);
 }
 
 void unitaryGateNode::accept(nodeVisitor &visitor) {
@@ -73,4 +97,12 @@ int unitaryGateNode::get_num_qubits() {
 
 return_type unitaryGateNode::get_data() {
     return data;
+}
+
+void twoQubitGateNode::accept(nodeVisitor &visitor) {
+    visitor.visit(*this);
+}
+
+return_type twoQubitGateNode::get_data() {
+    return phase; 
 }

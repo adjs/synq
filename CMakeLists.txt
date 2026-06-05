@@ -70,6 +70,10 @@ add_library(SynthQ
         include/qsdNode.h
         src/unitaryGateNode.cpp
         include/unitaryGateNode.h
+        src/twoQubitsUnitary.cpp
+        include/twoQubitsUnitary.h
+        src/diagonalGateNode.cpp
+        include/diagonalGateNode.h
 )
 
 add_executable(Test
@@ -79,7 +83,8 @@ add_executable(Test
         test/test_csd.cpp
         test/test_rnd_unitary.cpp
         test/test_qsd.cpp
-        test/test_unitary.cpp)
+        test/test_unitary.cpp
+        test/test_diagonal.cpp)
 
 if (UNIX AND NOT APPLE)
         target_link_libraries(

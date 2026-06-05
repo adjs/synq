@@ -3,6 +3,7 @@
 //
 
 #include "../include/nodeVisitor.h"
+#include "../include/diagonalGateNode.h"
 #include <utility>
 
 qasmVisitor::qasmVisitor(int num_qubits) {
@@ -17,12 +18,17 @@ qasmVisitor::qasmVisitor(int num_qubits) {
 void qasmVisitor::visit(rzNode &node)
 {
     int target;
-    if (active_target != -1) {
-        target = active_target;
+
+    if (node.position != -1) {
+        target = node.position;
     } else {
-        target = current_msb;
+        if (active_target != -1) {
+            target = active_target;
+        } else {
+            target = current_msb;
+        }
     }
-   
+
     qasm_code += "rz(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
 }
 
@@ -75,10 +81,15 @@ void qasmVisitor::visit(ucrzNode &node) {
 void qasmVisitor::visit(ryNode &node)
 {
     int target;
-    if (active_target != -1) {
-        target = active_target;
+
+    if (node.position != -1) {
+        target = node.position;
     } else {
-        target = current_msb;
+        if (active_target != -1) {
+            target = active_target;
+        } else {
+            target = current_msb;
+        }
     }
    
     qasm_code += "ry(" + std::visit(return_type_visitor{}, node.get_data()) + ") q[" + std::to_string(target) + "];\n";
@@ -164,11 +175,7 @@ void qasmVisitor::visit(unitaryGateNode &node) {
 
     current_msb = node.get_num_qubits() - 1;
 
-    if (node.num_qubits > 1) {
-        node.csd->accept(*this);
-    } else {
-        node.base_unitary->accept(*this);
-    }
+    node.csd->accept(*this);
 
     if (node.get_num_qubits() == _num_qubits) {
         global_phase = std::fmod(global_phase, 2 * M_PI);
@@ -190,6 +197,34 @@ void qasmVisitor::visit(qsdNode &node) {
     }
 }
 
+void qasmVisitor::visit(diagonalGateNode &node) {
+    
+    bool prev_gate_synthesis = gate_synthesis;
+    gate_synthesis = true; 
+
+    int previous_msb = current_msb;
+
+    if (node.child_diagonal) {
+        current_msb = previous_msb - 1; 
+        node.child_diagonal->accept(*this);
+    }
+    
+    if (node.ucrz) {
+        current_msb = previous_msb; 
+        node.ucrz->accept(*this);
+    }
+    
+    current_msb = previous_msb;
+    gate_synthesis = prev_gate_synthesis;
+}
+
+void qasmVisitor::visit(oneQubitDiagonalGateNode &node) {
+    if (std::abs(node.global_phase) > 1e-12) {
+        qasm_code += "gphase(" + std::to_string(node.global_phase) + ");\n";
+    }
+    qasm_code += "p(" + std::to_string(node.p_phase) + ") q[0];\n";
+}
+
 void qasmVisitor::visit(csdNode &node) {
     if (node.qsd2) {
         node.qsd2->accept(*this);
@@ -204,7 +239,31 @@ void qasmVisitor::visit(csdNode &node) {
 
 void qasmVisitor::visit(unitaryOneQubitGateNode &node){
     global_phase += node.params.alpha;
-    qasm_code += "rz(" + std::to_string(node.params.delta) + ") q[" + std::to_string(0) + "];\n";
-    qasm_code += "ry(" + std::to_string(node.params.gamma) + ") q[" + std::to_string(0) + "];\n";
-    qasm_code += "rz(" + std::to_string(node.params.beta) + ") q[" + std::to_string(0) + "];\n";
+    qasm_code += "rz(" + std::to_string(node.params.delta) + ") q[" + std::to_string(node.position) + "];\n";
+    qasm_code += "ry(" + std::to_string(node.params.gamma) + ") q[" + std::to_string(node.position) + "];\n";
+    qasm_code += "rz(" + std::to_string(node.params.beta) + ") q[" + std::to_string(node.position) + "];\n";
+}
+
+void qasmVisitor::visit(twoQubitGateNode &node) {
+    if (std::abs(node.phase) > 1e-12) {
+        global_phase += node.phase;
+    }
+
+    node.gate_c->accept(*this);
+    node.gate_d->accept(*this);
+
+    qasm_code += "cx q[0], q[1];\n";
+
+    node.rz_theta->accept(*this);
+    node.ry1_theta->accept(*this);
+
+    qasm_code += "cx q[1], q[0];\n";
+
+    node.ry2_theta->accept(*this);
+
+    qasm_code += "cx q[0], q[1];\n";
+
+    node.gate_a->accept(*this);
+    node.gate_b->accept(*this);
+
 }
