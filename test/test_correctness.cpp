@@ -302,8 +302,9 @@ std::pair<std::vector<circuitGate>, double> qasm_to_gates(const std::string& qas
         } else if (line.rfind("rz", 0) == 0 || line.rfind("ry", 0) == 0 || line.rfind("p(", 0) == 0) {
             const auto type = line[0] == 'p' ? qasmVisitor::P : (line[1] == 'z' ? qasmVisitor::RZ : qasmVisitor::RY);
             gates.push_back({type, parse_index(line, line.find(')')), -1, parse_angle(line)});
-        } else if (line.rfind("cx", 0) == 0) {
-            gates.push_back({qasmVisitor::CX, parse_index(line, 0), parse_index(line, line.find(',')), 0.0});
+        } else if (line.rfind("cx", 0) == 0 || line.rfind("cz", 0) == 0) {
+            const auto type = line[1] == 'z' ? qasmVisitor::CZ : qasmVisitor::CX;
+            gates.push_back({type, parse_index(line, 0), parse_index(line, line.find(',')), 0.0});
         }
     }
     return {gates, phase};
@@ -345,6 +346,24 @@ TEST(CorrectnessGateList, SameCircuitAsQasm) {
         const Eigen::VectorXcd v = random_state(dim);
         std::vector<cd> state(v.data(), v.data() + v.size());
         expect_same_circuit([&] { return std::make_unique<qspUcrNode>(&state); }, n, "state");
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Two-qubit gate count (optimization A.1 saves one CNOT per CSD step)
+// ---------------------------------------------------------------------------
+
+TEST(CorrectnessUnitary, TwoQubitGateCountWithA1) {
+    // (9/16) 4^n - (3/2) 2^n two-qubit gates without optimizations, minus
+    // (4^(n-2) - 1)/3, the number of CSD steps, with A.1.
+    const std::pair<int, std::size_t> expected[] = {{3, 23}, {4, 115}, {5, 507}};
+    for (const auto& [n, count] : expected) {
+        unitaryGateNode node(random_unitary(Eigen::Index(1) << n));
+        qasmVisitor visitor(n, false);
+        node.accept(visitor);
+        std::size_t two_qubit = 0;
+        for (const auto& gate : visitor.gates) two_qubit += (gate.type >= qasmVisitor::CX);
+        EXPECT_EQ(two_qubit, count) << n << " qubits";
     }
 }
 

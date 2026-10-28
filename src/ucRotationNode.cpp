@@ -33,6 +33,15 @@ void UCRotationNode::init() {
     }
 }
 
+void UCRotationNode::setUseCz(const bool value) {
+    use_cz = value;
+    for (auto* child : {gate1.get(), gate2.get()}) {
+        if (auto* ucr = dynamic_cast<UCRotationNode*>(child)) {
+            ucr->setUseCz(value);
+        }
+    }
+}
+
 void UCRotationNode::accept(nodeVisitor &visitor) {
     visitor.visit(*this);
 }

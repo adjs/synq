@@ -2,12 +2,12 @@
 
 Quantum circuit synthesis in C++ (Eigen + LAPACK), with Python bindings.
 
-SynQ builds an abstract syntax tree for the decomposition and emits OpenQASM 3 that uses only `rz`, `ry`, `p`, `cx` and `gphase`:
+SynQ builds an abstract syntax tree for the decomposition and emits OpenQASM 3 that uses only `rz`, `ry`, `p`, `cx`, `cz` and `gphase`:
 
 | Function | Method |
 |---|---|
 | state preparation | uniformly controlled RY/RZ rotations (Möttönen et al.) |
-| unitary | cosine-sine decomposition + quantum Shannon decomposition; 2-qubit blocks use the 3-CNOT decomposition |
+| unitary | cosine-sine decomposition + quantum Shannon decomposition with optimization A.1 of Shende, Bullock and Markov (the middle RY multiplexor uses CZs and its last CZ is absorbed into the next block); 2-qubit blocks use the 3-CNOT decomposition |
 | diagonal gate | recursive uniformly controlled RZ rotations |
 
 The circuits use the Qiskit (little-endian) qubit order: qubit 0 is the least significant bit. They implement the target exactly, including the global phase.
@@ -50,7 +50,7 @@ qasm = synq.diagonal(phases)        # entries with modulus 1
 types, qubits, angles, phase = synq.unitary_gates(matrix)   # same circuit as arrays
 ```
 
-`state_preparation`, `unitary` and `diagonal` return an OpenQASM 3 string. The `*_gates` variants (`state_preparation_gates`, `unitary_gates`, `diagonal_gates`) return the same circuit as `(types, qubits, angles, global_phase)` numpy arrays: types are `synq.RZ`, `RY`, `P`, `CX` (0–3), `qubits[k]` is `(target, -1)` for rotations and `(control, target)` for `cx`. They avoid formatting and parsing text, so they are the faster way to consume the circuit. [qclib](https://github.com/qclib/qclib) converts it into a Qiskit circuit (`qclib.synq`, `SynqInitialize`, `unitary(..., decomposition="synq")`).
+`state_preparation`, `unitary` and `diagonal` return an OpenQASM 3 string. The `*_gates` variants (`state_preparation_gates`, `unitary_gates`, `diagonal_gates`) return the same circuit as `(types, qubits, angles, global_phase)` numpy arrays: types are `synq.RZ`, `RY`, `P`, `CX`, `CZ` (0–4), `qubits[k]` is `(target, -1)` for rotations and `(control, target)` for `cx`/`cz`. They avoid formatting and parsing text, so they are the faster way to consume the circuit. [qclib](https://github.com/qclib/qclib) converts it into a Qiskit circuit (`qclib.synq`, `SynqInitialize`, `unitary(..., decomposition="synq")`).
 
 Python tests (they simulate the output with numpy and check it against the target):
 
