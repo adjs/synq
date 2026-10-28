@@ -31,7 +31,7 @@ void qasmVisitor::emit_two_qubit(const gateType type, const int control, const i
         gates.push_back({type, control, target, 0.0});
         return;
     }
-    qasm_code += "cx q[" + std::to_string(control) + "], q[" + std::to_string(target) + "];\n";
+    qasm_code += std::string(type == CZ ? "cz" : "cx") + " q[" + std::to_string(control) + "], q[" + std::to_string(target) + "];\n";
 }
 
 void qasmVisitor::emit_gphase(const double angle) {
@@ -73,9 +73,9 @@ void qasmVisitor::visit(firstUcrzNode &node) {
     }
 
     node.gate1->accept(*this);
-    emit_two_qubit(CX, control, target);
+    emit_two_qubit(node.use_cz ? CZ : CX, control, target);
     node.gate2->accept(*this);
-    emit_two_qubit(CX, control, target);
+    emit_two_qubit(node.use_cz ? CZ : CX, control, target);
 }
 
 
@@ -99,7 +99,7 @@ void qasmVisitor::visit(ucrzNode &node) {
         std::swap(node.gate1, node.gate2);
     }
     node.gate1->accept(*this);
-    emit_two_qubit(CX, control, target);
+    emit_two_qubit(node.use_cz ? CZ : CX, control, target);
     node.gate2->accept(*this);
 }
 
@@ -139,9 +139,11 @@ void qasmVisitor::visit(firstUcryNode &node) {
 
 
     node.gate1->accept(*this);
-    emit_two_qubit(CX, control, target);
+    emit_two_qubit(node.use_cz ? CZ : CX, control, target);
     node.gate2->accept(*this);
-    emit_two_qubit(CX, control, target);
+    if (!node.drop_last) {  // A.1: the caller absorbed this gate
+        emit_two_qubit(node.use_cz ? CZ : CX, control, target);
+    }
 }
 
 void qasmVisitor::visit(ucryNode &node) {
@@ -168,7 +170,7 @@ void qasmVisitor::visit(ucryNode &node) {
         std::swap(node.gate1, node.gate2);
     }
     node.gate1->accept(*this);
-    emit_two_qubit(CX, control, target);
+    emit_two_qubit(node.use_cz ? CZ : CX, control, target);
     node.gate2->accept(*this);
 }
 

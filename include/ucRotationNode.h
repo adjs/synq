@@ -27,6 +27,21 @@ public:
     
     /** @brief Flag indicating if the inverse of the gate should be applied. */
     bool inverse = false;
+
+    /**
+     * @brief Use CZ instead of CNOT for every two-qubit gate of this node and its
+     * sub-nodes (valid for RY multiplexors: Z Ry(t) Z = Ry(-t), and CZs commute).
+     */
+    bool use_cz = false;
+
+    /**
+     * @brief Omit the final two-qubit gate (optimization A.1). Only meaningful for
+     * a "first" node with use_cz; the caller absorbs the omitted CZ elsewhere.
+     */
+    bool drop_last = false;
+
+    /** @brief Sets use_cz on this node and all its UCR sub-nodes. */
+    void setUseCz(bool value);
     
     /** @brief Unique index assigned to the node. */
     int name;

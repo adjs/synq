@@ -14,7 +14,7 @@ import pytest
 import synq
 
 _ROT = re.compile(r"^(rz|ry|p)\(([^)]+)\) q\[(\d+)\];$")
-_CX = re.compile(r"^cx q\[(\d+)\], q\[(\d+)\];$")
+_CX = re.compile(r"^(cx|cz) q\[(\d+)\], q\[(\d+)\];$")
 _GPHASE = re.compile(r"^gphase\(([^)]+)\);$")
 
 
@@ -40,6 +40,12 @@ def _apply_cx(state, control, target):
     return state[flipped]
 
 
+def _apply_cz(state, control, target):
+    idx = np.arange(len(state))
+    sign = np.where(((idx >> control) & 1) & ((idx >> target) & 1), -1.0, 1.0)
+    return state * sign
+
+
 def simulate(qasm, state):
     n = int(re.search(r"qubit\[(\d+)\]", qasm).group(1))
     state = np.array(state, dtype=complex)
@@ -47,7 +53,8 @@ def simulate(qasm, state):
         if m := _ROT.match(line):
             state = _apply_1q(state, _one_qubit(m[1], float(m[2])), int(m[3]), n)
         elif m := _CX.match(line):
-            state = _apply_cx(state, int(m[1]), int(m[2]))
+            apply = _apply_cx if m[1] == "cx" else _apply_cz
+            state = apply(state, int(m[2]), int(m[3]))
         elif m := _GPHASE.match(line):
             state = state * np.exp(1j * float(m[1]))
         elif line and not line.startswith(("OPENQASM", "include", "qubit")):
@@ -114,7 +121,8 @@ def qasm_to_gates(qasm):
         if m := _ROT.match(line):
             types.append(names[m[1]]); qubits.append((int(m[3]), -1)); angles.append(float(m[2]))
         elif m := _CX.match(line):
-            types.append(synq.CX); qubits.append((int(m[1]), int(m[2]))); angles.append(0.0)
+            types.append(synq.CX if m[1] == "cx" else synq.CZ)
+            qubits.append((int(m[2]), int(m[3]))); angles.append(0.0)
         elif m := _GPHASE.match(line):
             phase += float(m[1])
     return types, qubits, angles, phase
@@ -150,8 +158,10 @@ def simulate_gates(gates, state):
     for gate, (q0, q1), angle in zip(types, qubits, angles):
         if gate in names:
             state = _apply_1q(state, _one_qubit(names[gate], angle), q0, n)
-        else:
+        elif gate == synq.CX:
             state = _apply_cx(state, q0, q1)
+        else:
+            state = _apply_cz(state, q0, q1)
     return state
 
 
@@ -169,6 +179,13 @@ def test_gate_lists_validate_inputs():
         synq.unitary_gates(np.ones((4, 4)))
     with pytest.raises(ValueError):
         synq.diagonal_gates([1.0, 0.5])
+
+
+@pytest.mark.parametrize("n,expected", [(2, 3), (3, 23), (4, 115), (5, 507)])
+def test_unitary_two_qubit_gate_count(n, expected):
+    """Optimization A.1 saves one CNOT per CSD step: (9/16) 4^n - (3/2) 2^n - (4^(n-2) - 1)/3."""
+    types, _, _, _ = synq.unitary_gates(random_unitary(2**n, rng))
+    assert np.count_nonzero(types >= synq.CX) == expected
 
 
 def test_toffoli():

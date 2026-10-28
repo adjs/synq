@@ -87,7 +87,7 @@ struct return_type_visitor {
  * @brief A gate of the synthesized circuit (used when the visitor records gates).
  *
  * type: 0 = rz, 1 = ry, 2 = p (q0 = target, q1 = -1, angle),
- *       3 = cx (q0 = control, q1 = target).
+ *       3 = cx, 4 = cz (q0 = control, q1 = target).
  */
 struct circuitGate {
     std::uint8_t type;
@@ -104,7 +104,7 @@ struct circuitGate {
  */
 class qasmVisitor : public nodeVisitor {
 public:
-    enum gateType : std::uint8_t { RZ = 0, RY = 1, P = 2, CX = 3 };
+    enum gateType : std::uint8_t { RZ = 0, RY = 1, P = 2, CX = 3, CZ = 4 };
 
     std::string qasm_code;
     int _num_qubits;
